@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Album</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <h2>Photo galery</h2>
+    <p class="keuze_text">Please select an option:</p>
+    
+    <!-- Button to go to the Upload page -->
+    <button onclick="goToUploadPage()">Go to Upload Page</button>
+    
+    <!-- Button to go to the View page -->
+    <button onclick="goToViewPage()">Go to View Page</button>
+
+    <script>
+        // Function to redirect to the Upload page
+        function goToUploadPage() {
+            window.location.href = "upload_image.html";
+        }
+
+        // Function to redirect to the View page
+        function goToViewPage() {
+            window.location.href = "display_images.php";
+        }
+    </script>
+</body>
+</html>
