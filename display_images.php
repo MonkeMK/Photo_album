@@ -64,6 +64,17 @@
             }
         }
 
+        // Handle the removal of individual images
+        if (isset($_GET['remove_image'])) {
+            $imagePath = $_GET['remove_image'];
+            // Remove the image from the database
+            $sql = "DELETE FROM images WHERE image_path = '$imagePath'";
+            if ($conn->query($sql) === TRUE) {
+                // Delete the image file from the server (adjust the path as needed)
+                unlink($imagePath);
+            }
+        }
+
         // Retrieve image data from the database and sort by date
         $sql = "SELECT * FROM images ORDER BY upload_date DESC";
         $result = $conn->query($sql);
@@ -85,6 +96,7 @@
                         <div class="card-body">
                             <p class="card-date">Uploaded on ' . $formatted_date . '</p>
                             <a href="' . $image_path . '" download="image.jpg" class="btn btn-primary">Download</a>
+                            <a href="?remove_image=' . $image_path . '" class="btn btn-danger">Remove</a>
                         </div>
                     </div>
                 </div>';
