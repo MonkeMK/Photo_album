@@ -54,15 +54,27 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
+        // Handle the "Remove All Files" button
+        if (isset($_POST['remove_all'])) {
+            $sql = "DELETE FROM images";
+            if ($conn->query($sql) === TRUE) {
+                echo '<div class="alert alert-success" role="alert">All files have been removed from the database.</div>';
+            } else {
+                echo '<div class="alert alert-danger" role="alert">Error removing files: ' . $conn->error . '</div>';
+            }
+        }
+
         // Retrieve image data from the database and sort by date
         $sql = "SELECT * FROM images ORDER BY upload_date DESC";
         $result = $conn->query($sql);
 
         if ($result->num_rows > 0) {
-            echo '<div class="row">';
+            echo '<form method="post" action="">
+                      <div class="row">';
             while ($row = $result->fetch_assoc()) {
                 $image_path = $row["image_path"];
                 $upload_date = isset($row["upload_date"]) ? $row["upload_date"] : "Date not available";
+                $formatted_date = date("l, jS F Y", strtotime($upload_date)); // Format as Day of the Week, Day of the Month, Month, Year
 
                 echo '
                 <div class="col-4 mb-4">
@@ -71,13 +83,16 @@
                             <img src="' . $image_path . '" alt="Uploaded Image" class="card-img-top img-thumbnail">
                         </a>
                         <div class="card-body">
-                            <p class="card-date">' . $upload_date . '</p>
+                            <p class="card-date">Uploaded on ' . $formatted_date . '</p>
+                            <a href="' . $image_path . '" download="image.jpg" class="btn btn-primary">Download</a>
                         </div>
                     </div>
                 </div>';
             }
 
-            echo '</div>';
+            echo '</div>
+                  <button type="submit" name="remove_all" class="btn btn-danger mt-3">Remove All Files</button>
+                  </form>';
         } else {
             echo "No images found.";
         }
