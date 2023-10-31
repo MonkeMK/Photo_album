@@ -50,6 +50,7 @@
         $database = "fotos";
 
         $conn = new mysqli($servername, $username, $password, $database);
+
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
@@ -67,10 +68,8 @@
         // Handle the removal of individual images
         if (isset($_GET['remove_image'])) {
             $imagePath = $_GET['remove_image'];
-            // Remove the image from the database
             $sql = "DELETE FROM images WHERE image_path = '$imagePath'";
             if ($conn->query($sql) === TRUE) {
-                // Delete the image file from the server (adjust the path as needed)
                 unlink($imagePath);
             }
         }
@@ -111,6 +110,8 @@
 
         $conn->close();
         ?>
+        <!-- Button to go back to index.html -->
+        <a href="index.html" class="btn btn-primary mt-3">Back to Index</a>
     </div>
 </body>
 </html>
