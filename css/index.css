@@ -23,3 +23,11 @@ body{
     position:absolute;
 
 }
+
+.titel{
+    Color:white;
+    Position:fixed;
+    Left:43%;
+    font-size:200%;
+    font-family: gotham book;
+}
