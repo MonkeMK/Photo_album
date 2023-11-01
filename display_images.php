@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Display Images</title>
     <!-- Add Bootstrap CSS link -->
@@ -17,7 +18,7 @@
             color: #6c757d;
             margin-bottom: 10px;
         }
-        
+
         /* Style the modal background and content */
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.7);
@@ -27,7 +28,7 @@
         .modal {
             display: none;
         }
-        
+
         /* Style the modal content */
         .modal-content img {
             max-width: 100%;
@@ -35,6 +36,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Uploaded Images</h2>
@@ -44,74 +46,69 @@
 
         <?php
         // Connect to your MySQL database (replace with your credentials)
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $database = "fotos";
-
-        $conn = new mysqli($servername, $username, $password, $database);
-
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+        require 'dbconnect.php';
 
         // Handle the "Remove All Files" button
-        if (isset($_POST['remove_all'])) {
-            $sql = "DELETE FROM images";
-            if ($conn->query($sql) === TRUE) {
-                echo '<div class="alert alert-success" role="alert">All files have been removed from the database.</div>';
-            } else {
-                echo '<div class="alert alert-danger" role="alert">Error removing files: ' . $conn->error . '</div>';
+        if (isset($_GET['remove_all'])) {
+            $stmt = $conn->prepare('SELECT image_path FROM images');
+            $stmt->execute();
+            $imagePaths = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+            $stmt = $conn->prepare('DELETE FROM images');
+            $stmt->execute();
+            foreach($imagePaths as $imagePath) {
+                unlink($imagePath);
             }
         }
 
         // Handle the removal of individual images
         if (isset($_GET['remove_image'])) {
             $imagePath = $_GET['remove_image'];
-            $sql = "DELETE FROM images WHERE image_path = '$imagePath'";
-            if ($conn->query($sql) === TRUE) {
+            $stmt = $conn->prepare('DELETE FROM images WHERE image_path = :imgPath');
+            $stmt->bindParam(':imgPath', $imagePath);
+            if ($stmt->execute()) {
+                // Successfully deleted the record from the database
+                echo '<div class="alert alert-success" role="alert">The file has been removed from the database.</div>';
+
+                // Delete the image from the computer
                 unlink($imagePath);
+            } else {
+                echo '<div class="alert alert-danger" role="alert">Error removing the file from the database.</div>';
             }
         }
+
 
         // Retrieve image data from the database and sort by date
-        $sql = "SELECT * FROM images ORDER BY upload_date DESC";
-        $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            echo '<form method="post" action="">
-                      <div class="row">';
-            while ($row = $result->fetch_assoc()) {
-                $image_path = $row["image_path"];
-                $upload_date = isset($row["upload_date"]) ? $row["upload_date"] : "Date not available";
-                $formatted_date = date("l, jS F Y", strtotime($upload_date)); // Format as Day of the Week, Day of the Month, Month, Year
-
-                echo '
-                <div class="col-4 mb-4">
-                    <div class="card h-100">
-                        <a href="' . $image_path . '" target="_blank"> <!-- Added target="_blank" to open the image in a new tab -->
-                            <img src="' . $image_path . '" alt="Uploaded Image" class="card-img-top img-thumbnail">
-                        </a>
-                        <div class="card-body">
-                            <p class="card-date">Uploaded on ' . $formatted_date . '</p>
-                            <a href="' . $image_path . '" download="image.jpg" class="btn btn-primary">Download</a>
-                            <a href="?remove_image=' . $image_path . '" class="btn btn-danger">Remove</a>
-                        </div>
+        $stmt = $conn->prepare("SELECT * FROM images ORDER BY upload_date DESC");
+        $stmt->execute();
+        $result = $stmt->fetchAll();
+        foreach ($result as $row) {
+            $image_path = $row["image_path"];
+            $upload_date = isset($row["upload_date"]) ? $row["upload_date"] : "Date not available";
+            $formatted_date = date("l, jS F Y H:i", strtotime($upload_date));
+        
+            echo '
+            <div class="col-4 mb-4">
+                <div class="card h-100">
+                    <a href="' . $image_path . '" target="_blank"> <!-- Added target="_blank" to open the image in a new tab -->
+                        <img src="' . $image_path . '" alt="Uploaded Image" class="card-img-top img-thumbnail">
+                    </a>
+                    <div class="card-body">
+                        <p class="card-date">Uploaded on ' . $formatted_date . '</p>
+                        <a href="' . $image_path . '" download="image.jpg" class="btn btn-primary">Download</a>
+                        <a href="?remove_image=' . $image_path . '" class="btn btn-danger">Remove</a>
                     </div>
-                </div>';
-            }
-
-            echo '</div>
-                  <button type="submit" name="remove_all" class="btn btn-danger mt-3">Remove All Files</button>
-                  </form>';
-        } else {
-            echo "No images found.";
+                </div>
+            </div>';
         }
-
-        $conn->close();
+        echo '</div>
+        </div>';
         ?>
         <!-- Button to go back to index.html -->
+        <form method="GET">
+        <button type="submit" name="remove_all" class="btn btn-danger mt-3">Remove All Files</button>
         <a href="index.html" class="btn btn-primary mt-3">Back to Index</a>
+        </form>
     </div>
 </body>
+
 </html>

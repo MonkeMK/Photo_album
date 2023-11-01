@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"]["name"])) {
             $conn->exec($sql);
 
             // Get the current date
-            $upload_date = date("Y-m-d");
+            $upload_date = date("Y-m-d H:i:s");
 
             // Insert the image path and upload date into the database
             $sql = "INSERT INTO images (image_path, upload_date) VALUES (:image_path, :upload_date)";
