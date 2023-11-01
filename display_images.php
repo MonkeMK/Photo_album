@@ -1,3 +1,6 @@
+<?php
+require 'sessionCheck.php';
+?>
 <!DOCTYPE html>
 <html>
 
@@ -106,7 +109,7 @@
         <!-- Button to go back to index.html -->
         <form method="GET">
         <button type="submit" name="remove_all" class="btn btn-danger mt-3">Remove All Files</button>
-        <a href="index.html" class="btn btn-primary mt-3">Back to Index</a>
+        <a href="index.php" class="btn btn-primary mt-3">Back to Index</a>
         </form>
     </div>
 </body>

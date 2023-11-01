@@ -1,4 +1,5 @@
 <?php
+require 'sessionCheck.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"]["name"])) {
     $target_dir = "uploads/";
 
